@@ -1,0 +1,14 @@
+{
+  "name": "treesite",
+  "version": "1.0.0",
+  "description": "Framework for experimenting with navigation for large/deep websites using content organized as a tree.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Fritz Passow",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.14.0"
+  }
+}
