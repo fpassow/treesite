@@ -16,29 +16,58 @@ MongoClient.connect(url, function (err, db) {
         app.use('/public', express.static('public'));
 
         //Serve objects from the mongodb "content" collection by _id.
-        //Rooted at "/content".
-        app.get("/content/:content_id",function(req,res){
+        app.get("/content/id/:content_id",function(req,res){
+            console.log("GET " + req.originalUrl);
             try {
                 var objid = new mongodb.ObjectID(req.params.content_id);
-                
-                db.collection('content').findOne(), function (err, result) {
-                    if (err) {
-                        console.log('find err: ' + err);
-                        //SEND 500
-                    } else {
-                        if (result && result.text) {
-                            res.send(result.text);
+                try {
+                    db.collection('content').findOne({_id: objid}, function (err, result) {
+                        if (err) {
+                            console.log('find err: ' + err);
+                            //SEND 500
                         } else {
-                            res.status(404).send('404: Not found');
+                            if (result && result.text) {
+                                res.send(result.text);
+                            } else {
+                                res.status(404).send('404: Not found');
+                            }
                         }
-                    }
-                }; 
+                    }); 
+                } catch (ee) {
+                    res.status(500).send('Server error: ' + ee.toString());
+                }
                 
             } catch (e) {
-                //TODO: DISTINGUISH DB ACCESS ERROR
                 res.status(400).send('400: Invalid ID format');
             }
         });
+        
+        
+        
+        //Search the "content" collection and return id's of matching objects as a JSON array.
+        //If no search params, return id's of all objects.
+        app.get("/content/find",function(req,res){
+            console.log("GET " + req.originalUrl);
+            try {
+                
+                try {
+                    db.collection('content').find({}, {_id: 1}, function (err, result) {
+                        if (err) {
+                            console.log('find err: ' + err);
+                        } else {
+                            res.setHeader('Content-Type', 'application/json');
+                            res.send(JSON.stringify(result.toArray()));
+                        }
+                    }); 
+                } catch (ee) {
+                    res.status(500).send('Server error: ' + ee.toString());
+                }
+                
+            } catch (e) {
+                res.status(400).send('400: Invalid ID format');
+            }
+        });
+        
 
         app.listen(80);
     }
