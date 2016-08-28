@@ -62,6 +62,13 @@ MongoClient.connect(url, function (err, db) {
             }
         });
         
+        //Get nodes, given a path and depth.
+        //Depth defaults to 1, the indicated node and its children
+        app.get('/nodes*', function(req, res) {
+            res.json(req.url.split('/').slice(2));
+            
+        });
+        
 
         app.listen(80);
     }
