@@ -53,7 +53,7 @@ MongoClient.connect(url, function (err, db) {
                     if (err) {
                         res.status(500).json(err);
                     } else {
-                        res.json(items);
+                        res.json(items.map(function(a) {return a._id.toString();}));
                     }
                 
                 });
