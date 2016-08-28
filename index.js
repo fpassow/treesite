@@ -42,29 +42,23 @@ MongoClient.connect(url, function (err, db) {
             }
         });
         
-        
-        
         //Search the "content" collection and return id's of matching objects as a JSON array.
         //If no search params, return id's of all objects.
-        app.get("/content/find",function(req,res){
+        //FOR NOW, ONLY DOES LIST-ALL. ADD TEXT SEARCH AFTER LEARNING ABOUT TEXT INDEXING IN MONGODB.
+        app.get("/content/find",function(req,res) {
             console.log("GET " + req.originalUrl);
+            var crit = {};
             try {
+                db.collection('content').find({}, {_id:1}).toArray(function(err, items) {
+                    if (err) {
+                        res.status(500).json(err);
+                    } else {
+                        res.json(items);
+                    }
                 
-                try {
-                    db.collection('content').find({}, {_id: 1}, function (err, result) {
-                        if (err) {
-                            console.log('find err: ' + err);
-                        } else {
-                            res.setHeader('Content-Type', 'application/json');
-                            res.send(JSON.stringify(result.toArray()));
-                        }
-                    }); 
-                } catch (ee) {
-                    res.status(500).send('Server error: ' + ee.toString());
-                }
-                
+                });
             } catch (e) {
-                res.status(400).send('400: Invalid ID format');
+                res.status(500).send('Server error: ' + ee.toString());
             }
         });
         
