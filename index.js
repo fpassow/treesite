@@ -2,6 +2,7 @@ var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
 var url = 'mongodb://127.0.0.1:27017/treesite';
 
+//Connect to DB
 MongoClient.connect(url, function (err, db) {
     if (err) {
       console.log('Unable to connect to the mongoDB server. Error:', err);
@@ -11,8 +12,11 @@ MongoClient.connect(url, function (err, db) {
         //Haz mongo, will serv.
         var express = require("express");
         var app = express();
+        var bodyParser = require("body-parser");
+        app.use(bodyParser.urlencoded({extended:true}));
+        app.use(bodyParser.json());
 
-        //Serve files
+        //Serve static files
         app.use('/public', express.static('public'));
 
         //Serve objects from the mongodb "content" collection by _id.
@@ -55,7 +59,29 @@ MongoClient.connect(url, function (err, db) {
                     } else {
                         res.json(items.map(function(a) {return a._id.toString();}));
                     }
-                
+                });
+            } catch (e) {
+                res.status(500).send('Server error: ' + ee.toString());
+            }
+        });
+        
+        //TEMPORARY. DUMP ALL OBJECTS IN CONTENT COLLECTION
+        app.get("/content/dump",function(req,res) {
+            console.log("GET " + req.originalUrl);
+            var crit = {};
+            try {
+                db.collection('content').find().toArray(function(err, items) {
+                    if (err) {
+                        res.status(500).json(err);
+                    } else {
+                        res.write('<html><body>');
+                        items.forEach(function(x) {
+                            res.write(x._id.toString() + '<br>');
+                            res.write(x.text + '<br><br>');
+                        });
+                        res.write('</body></html>');
+                        res.end();
+                    }
                 });
             } catch (e) {
                 res.status(500).send('Server error: ' + ee.toString());
@@ -66,9 +92,20 @@ MongoClient.connect(url, function (err, db) {
         //Depth defaults to 1, the indicated node and its children
         app.get('/nodes*', function(req, res) {
             res.json(req.url.split('/').slice(2));
-            
+            res.json(req.body);
         });
         
+        //Insert into content
+        app.post('/content', function(req, res) {
+            console.dir(req.body);
+            insertContent(db, req.body.text, function(err, result) {
+                if (err) {
+                    res.send(err);
+                } else {
+                    res.send(result.toString());
+                }
+            });
+        });
 
         app.listen(80);
     }
@@ -77,4 +114,78 @@ MongoClient.connect(url, function (err, db) {
 
 //57baf94855e0b6f617a15ad7
 
+//UTILS
 
+//Insert a content object. Callback gets error or the new ObjectID instance
+function insertContent(db, contentString, callback) {
+    db.collection('content').insert({text:contentString}, function (err, result) {
+        if (err) {
+            callback(err, null);
+        } else {
+            callback(null, result.insertedIds[0]);
+        }
+    });
+}
+
+/*  nodeInfo has:
+ *    text    For the content object
+ *    path    Path throgh the current tree
+ *    name    Name used in paths
+ *    title   Display name
+ */
+function insertNode(db, nodeInfo, callback) {
+    db.collection('content').insert({text:nodeInfo.text}, function (err, contentResult) {
+        if (err) {
+            callback(err, null);
+        } else {
+            var contentId = contentResult.insertedIds[0];
+            db.collection('nodes').insert({name:nodeInfo.name, title:nodeInfo.title}, function (err, nodeResult) {
+                if (err) {
+                    callback(err, null);
+                } else {
+                    
+                    var nodeId = result.insertedIds[0]
+               
+//ALSO FIND PARENT NODE AND SET ME AS CHILE
+               
+            callback(null, result.insertedIds[0]);
+        }
+    });
+}
+
+//callback is function(err, theNode)
+function getNode(db, rootIdObj, path, callback) {
+    path = path.trim().split('/');
+    var name = path.shift();
+    if (!name) {
+        name = path.shift(); //discard empty string caused by initial '/'
+    }
+    db.collection('nodes').findOne({name: name}, function (err, result) {
+        if (err) {
+            callback(err, null);
+        } else if (!result) {
+            callback({msg: '"'+name+'" not found.'}, null);
+        } else {
+            
+        }
+    
+    
+/*
+    to get a node....
+    
+    get the root node
+    if it's name...
+    
+      NO!!   A site can have multiple names imediately under /
+      so the root node is named /  ?
+      
+      if there are /'s in names, then others have to be named thing/
+      Blah.
+      
+      Ah. The root node is named ''.
+                Maybe.
+                
+    
+    
+    
+}
