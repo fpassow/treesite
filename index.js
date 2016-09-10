@@ -2,6 +2,9 @@ var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
 var url = 'mongodb://127.0.0.1:27017/treesite';
 
+//
+var tree = getTree();
+
 //Connect to DB
 MongoClient.connect(url, function (err, db) {
     if (err) {
@@ -153,39 +156,58 @@ function insertNode(db, nodeInfo, callback) {
     });
 }
 
-//callback is function(err, theNode)
-function getNode(db, rootIdObj, path, callback) {
-    path = path.trim().split('/');
-    var name = path.shift();
-    if (!name) {
-        name = path.shift(); //discard empty string caused by initial '/'
-    }
+/////////////////////////////////////
+// Start by loading the entire tree
+/////////////////////////////////////
+
+loadTree() {
+    getNodeByName(db, '/', function(err, node) {
+        if (err) {
+            //We're doomed!
+        } else {
+            tree = node;
+            loadKids(db, tree);
+        }
+    });
+}
+
+function loadKids(db, node) {
+    node.kids = {};
+    node.kidIDs.forEach(function(kidID) {
+        getNodeByID(db, kidID, function(err, kidNode) {
+            if (err) {
+                //?????????????????????
+            } else {
+                node.kids[kidNode.name] = kidNode;
+                loadKids(db, kidNode);
+            }
+        });
+    });
+}
+
+function getNodeByName(db, name, callback)) {
     db.collection('nodes').findOne({name: name}, function (err, result) {
         if (err) {
             callback(err, null);
-        } else if (!result) {
-            callback({msg: '"'+name+'" not found.'}, null);
         } else {
-            
+            callback(null, result);
         }
-    
-    
-/*
-    to get a node....
-    
-    get the root node
-    if it's name...
-    
-      NO!!   A site can have multiple names imediately under /
-      so the root node is named /  ?
-      
-      if there are /'s in names, then others have to be named thing/
-      Blah.
-      
-      Ah. The root node is named ''.
-                Maybe.
-                
-    
-    
-    
+    });
 }
+
+function getNodeByID(db, id, callback) {
+    db.collection('nodes').findOne({_id: id}, function (err, result) {
+        if (err) {
+            callback(err, null);
+        } else {
+            callback(null, result);
+        }
+    });
+}
+
+
+
+
+
+
+

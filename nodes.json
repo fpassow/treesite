@@ -1,0 +1,41 @@
+
+name:'role-playing-games'
+title:'Role Playing Games'
+kids:   
+    name:'meta'
+    title: 'META'
+    kids: 
+        name:'GM'
+        title:'Game Master'
+        kids:
+        name:'player'
+        title:'Player'
+        kids:
+    name:'examples'
+    title:'Examples'
+    kids:
+        name:'DnD'
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
