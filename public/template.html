@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="nav.css">
+<title>Title</title>
+</head>
+<body>
+
+<nav>foo</nav>
+
+<div id="content"></div>
+
+
+<script src="/public/js/jquery-3.1.1.min.js"></script>
+<script>
+    var path = window.location.pathname.split("/");
+    path.shift(); path.shift();
+    
+    $(document).ready(function(){
+        $.getJSON('/public/nav.json', function(nob) {
+            //a.prop("href", "http://google.com");
+            $("nav").append(listNav(nob, "/public"));
+        });
+    });
+
+    function listNav(nob, path) {
+        var ul = $("<ul></ul>");
+        var li, a;
+        for (var i = 0; i < nob.kids.length; i++) {
+            li = $("<li></li>");
+            a  = $("<a></a>");
+            a.prop("href", path + "/" + nob.kids[i].name + ".html");
+            a.append(nob.kids[i].title);
+            li.append(a);
+            if (nob.kids[i].kids) {
+                li.append(listNav(nob.kids[i], path + "/" + nob.kids[i].name));
+            }
+            ul.append(li);
+        }
+        return ul;
+    }
+</script
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,19 @@
+NEXT: ADD SOME CONTENT
+    HOW?
+        USE STATIC FILES
+        SERV AN HTML PAGE PER NAV STYLE
+        START WITH JUST ONE, AND NOT YET THE ABILITY TO CHANGE THEM
+        PLAN TO CHANGE THEM WITH A "style" REQUEST PARAM **AND* STORE THE CHOICE IN A SESSION.
+
+             INSERT CONTENT
+                WRITE SOME name.txt CONTENT FILES
+                WRITE JQUERY TO GET THEM
+                WRITE JQUERY TO INSERT THEM
+
+/treesite/editor/new? parent left_sib content
+
+/treesite/editor/edit? id content
+
+/treesite/editor/move? id new_parent new_left_sib
+
+/treesite/editor/delete? id
