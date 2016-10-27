@@ -9,10 +9,9 @@
 </head>
 <body>
 
-<nav>foo</nav>
+<nav id="nav"></nav>
 
 <div id="content"></div>
-
 
 <script src="/public/js/jquery-3.1.1.min.js"></script>
 <script>
@@ -72,21 +71,17 @@
     }
     
     function buildNavHook(nob, myPath, pathArray, nodePath, myNode) {
-        console.log("nob: " + nob);
-        console.log("myPath: " + myPath);
-        console.log("pathArray: " + pathArray);
-        console.log("nodePath: " + nodePath);
-        console.log("myNode: " + myNode);
+        $("#nav").append(listNav(nob));
     }
     
-    /*
+    
     function listNav(nob, path) {
         var ul = $("<ul></ul>");
         var li, a;
         for (var i = 0; i < nob.kids.length; i++) {
             li = $("<li></li>");
             a  = $("<a></a>");
-            a.prop("href", path + "/" + nob.kids[i].name + ".html");
+            a.prop("href", nob.kids[i].url);
             a.append(nob.kids[i].title);
             li.append(a);
             if (nob.kids[i].kids) {
@@ -96,7 +91,7 @@
         }
         return ul;
     }
-    */
+    
     
 
 </script
