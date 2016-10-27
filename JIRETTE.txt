@@ -5,10 +5,8 @@ NEXT: ADD SOME CONTENT
         START WITH JUST ONE, AND NOT YET THE ABILITY TO CHANGE THEM
         PLAN TO CHANGE THEM WITH A "style" REQUEST PARAM **AND* STORE THE CHOICE IN A SESSION.
 
-             INSERT CONTENT
-                WRITE SOME name.txt CONTENT FILES
-                WRITE JQUERY TO GET THEM
-                WRITE JQUERY TO INSERT THEM
+   >>>>>>>>  CODE HOOK TO INSERT SOME NAV <<<<<<<<<<<<<<<,,
+
 
 /treesite/editor/new? parent left_sib content
 

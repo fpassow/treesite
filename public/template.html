@@ -16,16 +16,70 @@
 
 <script src="/public/js/jquery-3.1.1.min.js"></script>
 <script>
-    var path = window.location.pathname.split("/");
-    path.shift(); path.shift();
     
     $(document).ready(function(){
+        
         $.getJSON('/public/nav.json', function(nob) {
-            //a.prop("href", "http://google.com");
-            $("nav").append(listNav(nob, "/public"));
+            makeNice(nob, null, "/site");
+            var myPath = window.location.pathname.replace('.html','');
+            var pathArray = getPathArray();
+            var nodePath = buildNodePath(nob, pathArray.slice());//buildNodePath eats pathArray. Call with a copy.
+            var myNode = nodePath.slice(-1)[0];
+            $.get('/public/content/' + myNode.cid + '.txt', function(data) {
+                $("#content").append(data);
+                buildNavHook(nob, myPath, pathArray, nodePath, myNode);
+            });
         });
+        
     });
 
+    //Add path, url, children[name] to each object.
+    //These can all be computed from the data that's already here.
+    function makeNice(nob, parent, parentPath) {
+        nob.parent = parent;
+        nob.path = parentPath + '/' + nob.name;
+        nob.url = nob.path + '.html';
+        nob.children = {};
+        if (nob.kids) {
+            for (var i = 0; i < nob.kids.length; i++) {
+                nob.children[nob.kids[i].name] = nob.kids[i];
+                makeNice(nob.kids[i], nob, nob.path);
+            }
+        }
+    }
+    
+    //Convert path into an array and throw away elements for "/" and "public".
+    function getPathArray() {
+        var pathArray = window.location.pathname.replace('.html','').split('/');
+        pathArray.shift(); 
+        pathArray.shift(); 
+        return pathArray;
+    }
+    
+    //Create an array of nob's coresponding to the names in the path.
+    function buildNodePath(nob, pathArray) {
+        var nodePath = [];
+        while (pathArray.length) {
+            if (nob && (nob.name == pathArray[0])) {
+                nodePath.push(nob);
+                pathArray.shift();
+                nob = nob.children[pathArray[0]];
+            } else {
+                return [{name:"404", title:"Page not found", cid:"404"}];
+            }
+        }
+        return nodePath;
+    }
+    
+    function buildNavHook(nob, myPath, pathArray, nodePath, myNode) {
+        console.log("nob: " + nob);
+        console.log("myPath: " + myPath);
+        console.log("pathArray: " + pathArray);
+        console.log("nodePath: " + nodePath);
+        console.log("myNode: " + myNode);
+    }
+    
+    /*
     function listNav(nob, path) {
         var ul = $("<ul></ul>");
         var li, a;
@@ -42,6 +96,9 @@
         }
         return ul;
     }
+    */
+    
+
 </script
 </body>
 </html>
