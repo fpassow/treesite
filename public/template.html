@@ -4,10 +4,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" type="text/css" href="nav.css">
+<link rel="stylesheet" type="text/css" href="/public/nav.css">
 <title>Title</title>
 </head>
 <body>
+
+<h1>Hi!</h1>
 
 <nav id="nav"></nav>
 
@@ -22,10 +24,15 @@
             makeNice(nob, null, "/site");
             var myPath = window.location.pathname.replace('.html','');
             var pathArray = getPathArray();
-            var nodePath = buildNodePath(nob, pathArray.slice());//buildNodePath eats pathArray. Call with a copy.
+            var nodePath = getNodePath(nob, pathArray.slice());//buildNodePath eats pathArray. Call with a copy.
             var myNode = nodePath.slice(-1)[0];
+            for (var i = 0; i < nodePath.length; i++) {
+                nodePath[i].isOnPath = true;
+            }
+            myNode.isThisPage = true;
             $.get('/public/content/' + myNode.cid + '.txt', function(data) {
                 $("#content").append(data);
+         
                 buildNavHook(nob, myPath, pathArray, nodePath, myNode);
             });
         });
@@ -35,6 +42,8 @@
     //Add path, url, children[name] to each object.
     //These can all be computed from the data that's already here.
     function makeNice(nob, parent, parentPath) {
+        nob.isOnPath = false;
+        nob.isThisPage = false;
         nob.parent = parent;
         nob.path = parentPath + '/' + nob.name;
         nob.url = nob.path + '.html';
@@ -56,7 +65,7 @@
     }
     
     //Create an array of nob's coresponding to the names in the path.
-    function buildNodePath(nob, pathArray) {
+    function getNodePath(nob, pathArray) {
         var nodePath = [];
         while (pathArray.length) {
             if (nob && (nob.name == pathArray[0])) {
@@ -75,17 +84,23 @@
     }
     
     
-    function listNav(nob, path) {
+    function listNav(nob) {
         var ul = $("<ul></ul>");
         var li, a;
         for (var i = 0; i < nob.kids.length; i++) {
             li = $("<li></li>");
+            if (nob.kids[i].isOnPath) {
+                li.addClass("onpath");
+                if (nob.kids[i].isThisPage) {
+                    li.addClass("thispage");
+                }
+            }
             a  = $("<a></a>");
             a.prop("href", nob.kids[i].url);
             a.append(nob.kids[i].title);
             li.append(a);
             if (nob.kids[i].kids) {
-                li.append(listNav(nob.kids[i], path + "/" + nob.kids[i].name));
+                li.append(listNav(nob.kids[i]));
             }
             ul.append(li);
         }
